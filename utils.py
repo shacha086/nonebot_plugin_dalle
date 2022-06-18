@@ -1,16 +1,16 @@
 import traceback
 from typing import List
 
-import httpx
+import aiohttp
 import nonebot
-from httpx import AsyncClient
+from aiohttp import ClientSession
 from nonebot.adapters.onebot.v11 import MessageSegment, Bot, GroupMessageEvent
 
 
 async def get_images(keyword: str) -> list:
     nonebot.logger.debug('开始下载…')
-    async with httpx.AsyncClient() as client:
-        client: AsyncClient
+    async with aiohttp.ClientSession() as client:
+        client: ClientSession
         try:
             resp = await client.post(
                 url="https://bf.dallemini.ai/generate",
@@ -37,8 +37,8 @@ async def get_images(keyword: str) -> list:
                          }
             )
         except Exception as e:
-            traceback.print_exception(e)
-        image_list = resp.json()['images']
+            traceback.print_exc()
+        image_list = (await resp.json())['images']
     nonebot.logger.debug('下载完成')
     return await normalize_b64(image_list)
 
